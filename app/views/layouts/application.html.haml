@@ -13,6 +13,14 @@
 
   %body
     .container-fluid
+      - if flash.key? :error and not flash[:error].blank?
+        #error.alert.alert-error
+          %button.close{'data-dismiss' => "alert"} ×
+          = flash[:error]
+      - if flash.key? :alert and not flash[:alert].blank?
+        #alert.alert
+          %button.close{'data-dismiss' => "alert"} ×
+          = flash[:alert]
       .row-fluid
         .span8.offset2
           = yield
