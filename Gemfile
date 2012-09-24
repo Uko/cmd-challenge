@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem 'rails',         '3.2.8'
 gem 'haml-rails', '~> 0.3.5'
 gem 'thin',       '~> 1.4.1'
+gem 'devise',     '~> 2.1.2'
 gem 'jquery-rails'
 gem 'sqlite3'
 
