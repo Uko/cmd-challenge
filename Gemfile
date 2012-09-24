@@ -18,3 +18,7 @@ end
 group :test, :development do
   gem 'rspec-rails', '~> 2.0'
 end
+
+group :test do
+	gem 'simplecov', :require => false
+end
