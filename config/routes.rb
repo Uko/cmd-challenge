@@ -1,5 +1,5 @@
 CmdChalange::Application.routes.draw do
-  resources :tasks
+  resources :tasks, :except => :show
 
   root :to => 'tasks#index'
 
