@@ -42,14 +42,6 @@ describe TasksController do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested task as @task" do
-      task = Task.create! valid_attributes
-      get :show, {:id => task.to_param}, valid_session
-      assigns(:task).should eq(task)
-    end
-  end
-
   describe "GET new" do
     it "assigns a new task as @task" do
       get :new, {}, valid_session
@@ -81,7 +73,7 @@ describe TasksController do
 
       it "redirects to the created task" do
         post :create, {:task => valid_attributes}, valid_session
-        response.should redirect_to(Task.last)
+        response.should redirect_to(:action => :index, :notice => 'Task was successfully created.')
       end
     end
 
