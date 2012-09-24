@@ -12,13 +12,23 @@
     = stylesheet_link_tag "application", :media => "all"
 
   %body
+    .navbar.navbar-fixed-top
+      .navbar-inner
+        .container
+          = link_to 'Task Manager', root_path, :class => 'brand pull-left'
+          - if user_signed_in?
+            %ul.nav.pull-right
+              %li
+                = link_to 'Edit profile', edit_user_registration_path
+              %li
+                = link_to 'Log out', destroy_user_session_path, :method => :delete
     .container-fluid
       - if flash.key? :error and not flash[:error].blank?
-        #error.alert.alert-error
+        #error.alert.alert-error.span6.offset3
           %button.close{'data-dismiss' => "alert"} ×
           = flash[:error]
       - if flash.key? :alert and not flash[:alert].blank?
-        #alert.alert
+        #alert.alert.span6.offset3
           %button.close{'data-dismiss' => "alert"} ×
           = flash[:alert]
       .row-fluid
