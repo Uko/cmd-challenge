@@ -31,6 +31,10 @@
         #alert.alert.span6.offset3
           %button.close{'data-dismiss' => "alert"} ×
           = flash[:alert]
+      - if flash.key? :notice and not flash[:notice].blank?
+        #notice.alert.alert-info.span6.offset3
+          %button.close{'data-dismiss' => "alert"} ×
+          = flash[:notice]
       .row-fluid
         .span8.offset2
           = yield
