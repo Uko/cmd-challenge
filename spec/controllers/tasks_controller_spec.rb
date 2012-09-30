@@ -24,25 +24,20 @@ describe TasksController do
     
     before(:each) do
       @user1 = FactoryGirl.create(:user_with_tasks, email: 'user1@e.mail')
-      @user2 = FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail')
-      @user2.tasks.last.collaborators << @user1
+      FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail').tasks.last.collaborators << @user1
       sign_in @user1
     end
     
     it 'assigns all users tasks as @tasks' do
       get :index
-      (@user1.tasks - assigns(:tasks)).should be_empty
+      assigns(:tasks).should match_array(@user1.tasks)
     end
     
     it 'assigns all shated tasks as @tasks' do
       get :index
-      (@user1.shared_tasks - assigns(:tasks)).should be_empty
+      assigns(:shared_tasks).should match_array(@user1.shared_tasks)
     end
     
-    it 'should not have other user\'s tasks' do
-      get :index
-      (assigns(:tasks) & (@user2.tasks - @user1.shared_tasks)).should be_empty
-    end
   end
 
   describe 'GET new' do
