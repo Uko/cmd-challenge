@@ -4,7 +4,7 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = current_user.tasks
+    @tasks = current_user.tasks + current_user.shared_tasks
 
     respond_to do |format|
       format.html # index.html.erb
@@ -70,5 +70,17 @@ class TasksController < ApplicationController
       format.html { redirect_to tasks_url }
       format.json { head :no_content }
     end
+    
+  end
+  
+  #POST /tasks/1/share.json
+  def share
+    user = User.find_by_email(params[:user][:email])
+    puts user
+    current_user.tasks.find(params[:id]).collaborators << user
+    
+    redirect_to :action => :index
+
+#   format.json { render json: @task, status: :created, location: @task }
   end
 end
