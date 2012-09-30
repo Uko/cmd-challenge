@@ -20,18 +20,33 @@ require 'spec_helper'
 
 describe TasksController do
 
-  describe "GET index" do
-    it "assigns all tasks as @tasks" do
-      user1 = FactoryGirl.create(:user_with_tasks, email: 'user1@e.mail')
-      user2 = FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail')
-      sign_in user1
+  describe 'GET index' do
+    
+    before(:each) do
+      @user1 = FactoryGirl.create(:user_with_tasks, email: 'user1@e.mail')
+      @user2 = FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail')
+      @user2.tasks.last.collaborators << @user1
+      sign_in @user1
+    end
+    
+    it 'assigns all users tasks as @tasks' do
       get :index
-      assigns(:tasks).should match_array(user1.tasks)
+      (@user1.tasks - assigns(:tasks)).should be_empty
+    end
+    
+    it 'assigns all shated tasks as @tasks' do
+      get :index
+      (@user1.shared_tasks - assigns(:tasks)).should be_empty
+    end
+    
+    it 'should not have other user\'s tasks' do
+      get :index
+      (assigns(:tasks) & (@user2.tasks - @user1.shared_tasks)).should be_empty
     end
   end
 
-  describe "GET new" do
-    it "assigns a new task as @task" do
+  describe 'GET new' do
+    it 'assigns a new task as @task' do
       user = FactoryGirl.create(:user)
       sign_in user
       get :new
@@ -39,8 +54,8 @@ describe TasksController do
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested task as @task" do
+  describe 'GET edit' do
+    it 'assigns the requested task as @task' do
       user = FactoryGirl.create(:user_with_tasks)
       sign_in user
       task = user.tasks.last
@@ -49,50 +64,50 @@ describe TasksController do
     end
   end
 
-  describe "POST create" do
+  describe 'POST create' do
     
     before(:each) do
       user = FactoryGirl.create(:user)
       sign_in user
     end
     
-    describe "with valid params" do
-      it "creates a new Task" do
+    describe 'with valid params' do
+      it 'creates a new Task' do
         expect {
           post :create, {:task => FactoryGirl.attributes_for(:task)}
         }.to change(Task, :count).by(1)
       end
 
-      it "assigns a newly created task as @task" do
+      it 'assigns a newly created task as @task' do
         post :create, {:task => FactoryGirl.attributes_for(:task)}
         assigns(:task).should be_a(Task)
         assigns(:task).should be_persisted
       end
 
-      it "redirects to the index page" do
+      it 'redirects to the index page' do
         post :create, {:task => FactoryGirl.attributes_for(:task)}       
         response.should redirect_to(:action => :index, :notice => 'Task was successfully created.')
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved task as @task" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved task as @task' do
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
         post :create, {:task => {}}
         assigns(:task).should be_a_new(Task)
       end
 
-      it "re-renders the 'new' template" do
+      it 're-renders the "new" template' do
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
         post :create, {:task => {}}
-        response.should render_template("new")
+        response.should render_template('new')
       end
     end
   end
 
-  describe "PUT update" do
+  describe 'PUT update' do
     
     before(:each) do
       user = FactoryGirl.create(:user_with_tasks)
@@ -100,8 +115,8 @@ describe TasksController do
       sign_in user
     end
     
-    describe "with valid params" do
-      it "updates the requested task" do
+    describe 'with valid params' do
+      it 'updates the requested task' do
         # Assuming there are no other tasks in the database, this
         # specifies that the Task created on the previous line
         # receives the :update_attributes message with whatever params are
@@ -110,35 +125,35 @@ describe TasksController do
         put :update, {:id => @task.to_param, :task => {'these' => 'params'}}
       end
 
-      it "assigns the requested task as @task" do
+      it 'assigns the requested task as @task' do
         put :update, {:id => @task.to_param}
         assigns(:task).should eq(@task)
       end
 
-      it "redirects to the index page" do
+      it 'redirects to the index page' do
         put :update, {:id => @task.to_param}
         response.should redirect_to(:action => :index, :notice => 'Task was successfully updated.')
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the task as @task" do
+    describe 'with invalid params' do
+      it 'assigns the task as @task' do
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
         put :update, {:id => @task.to_param, :task => {}}
         assigns(:task).should eq(@task)
       end
 
-      it "re-renders the 'edit' template" do
+      it 're-renders the "edit" template' do
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
         put :update, {:id => @task.to_param, :task => {}}
-        response.should render_template("edit")
+        response.should render_template('edit')
       end
     end
   end
 
-  describe "DELETE destroy" do
+  describe 'DELETE destroy' do
     
     before(:each) do
       user = FactoryGirl.create(:user_with_tasks)
@@ -146,14 +161,56 @@ describe TasksController do
       sign_in user
     end
     
-    it "destroys the requested task" do
+    it 'destroys the requested task' do
       expect {
         delete :destroy, {:id => @task.to_param}
       }.to change(Task, :count).by(-1)
     end
 
-    it "redirects to the tasks list" do
+    it 'redirects to the tasks list' do
       delete :destroy, {:id => @task.to_param}
+      response.should redirect_to(:action => :index)
+    end
+  end
+  
+  describe 'POST share' do
+    before(:each) do
+      user1 = FactoryGirl.create(:user_with_tasks, email: 'user1@e.mail')
+      @user2 = FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail')
+      user1.tasks.last
+      @task = user1.tasks.last
+      sign_in user1
+    end
+    
+    context 'user side' do
+      it 'should add task to shared' do
+        post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+        @user2.shared_tasks.should include(@task)
+      end
+      
+      it 'should increase shared tasks by 1' do
+        expect {
+          post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+        }.to change(@user2.shared_tasks, :count).by(1)
+      end
+      
+    end
+    
+    context 'task side' do
+      it 'should add user to collaborators' do
+        post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+        @task.collaborators.should include(@user2)
+      end
+      
+      it 'should increase collaborators by 1' do
+        expect {
+          post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+        }.to change(@task.collaborators, :count).by(1)
+      end
+    end
+    
+    it 'should redirect to the tasks list' do
+      post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
       response.should redirect_to(:action => :index)
     end
   end
