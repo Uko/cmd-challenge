@@ -77,7 +77,9 @@ class TasksController < ApplicationController
   #POST /tasks/1/share.json
   def share
     user = User.find_by_email(params[:user][:email])
-    current_user.tasks.find(params[:id]).collaborators << user
+    task = current_user.tasks.find(params[:id])
+    task.collaborators << user
+    PrivatePub.publish_to("/users/#{user.id}", :title => task.title, :description => task.description, :owner => user.email)
     respond_to do |format|
       format.html { redirect_to :action => :index }
       format.json { head :no_content }

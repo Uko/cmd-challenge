@@ -22,11 +22,14 @@
   .span5
     .page-header
       %h2 Shared with me
-    - @shared_tasks.each do |task|
-      .task
-        %h3= task.title
-        %p= task.description
-        %p
-          Owner:
-          %span.label= task.user.email
-      %hr
+    #shared-tasks
+      - @shared_tasks.each do |task|
+        .task
+          %h3= task.title
+          %p= task.description
+          %p
+            Owner:
+            %span.label= task.user.email
+        %hr
+
+= subscribe_to "/users/#{current_user.id}"

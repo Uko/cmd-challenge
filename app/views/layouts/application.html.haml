@@ -10,6 +10,8 @@
     /[if lt IE 9]
       = javascript_include_tag "http://html5shim.googlecode.com/svn/trunk/html5.js"
     = stylesheet_link_tag "application", :media => "all"
+    = javascript_tag "var user_id = #{current_user.id}"
+    = javascript_include_tag "application"
 
   %body
     .navbar.navbar-fixed-top
@@ -38,5 +40,3 @@
       .row-fluid
         .span8.offset2
           = yield
-      
-    = javascript_include_tag "application"
