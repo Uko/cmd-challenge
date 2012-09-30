@@ -4,8 +4,8 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = current_user.tasks 
-    @shared_tasks = current_user.shared_tasks
+    @tasks = current_user.tasks :order => 'updated_at DESC'
+    @shared_tasks = current_user.shared_tasks :order => 'updated_at DESC'
 
     respond_to do |format|
       format.html # index.html.erb
@@ -79,7 +79,9 @@ class TasksController < ApplicationController
     user = User.find_by_email(params[:user][:email])
     task = current_user.tasks.find(params[:id])
     task.collaborators << user
-    PrivatePub.publish_to("/users/#{user.id}", :title => task.title, :description => task.description, :owner => task.user.email)
+    PrivatePub.publish_to("/users/#{user.id}", :title => task.title,
+                                         :description => task.description,
+                                               :owner => task.user.email)
     respond_to do |format|
       format.html { redirect_to :action => :index }
       format.json { head :no_content }

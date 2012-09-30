@@ -25,17 +25,36 @@ describe TasksController do
     before(:each) do
       @user1 = FactoryGirl.create(:user_with_tasks, email: 'user1@e.mail')
       FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail').tasks.last.collaborators << @user1
+      FactoryGirl.create(:user_with_tasks, email: 'user3@e.mail').tasks.last.collaborators << @user1
+      FactoryGirl.create(:user_with_tasks, email: 'user4@e.mail').tasks.last.collaborators << @user1
       sign_in @user1
     end
     
-    it 'assigns all users tasks as @tasks' do
-      get :index
-      assigns(:tasks).should match_array(@user1.tasks)
+    context 'for owned tasks' do
+    
+      it 'assigns all as @tasks' do
+        get :index
+        assigns(:tasks).should match_array(@user1.tasks)
+      end
+      
+      it 'sorts them deccending by date' do
+        get :index
+        assigns(:tasks).sort_by{|task| task.updated_at}.reverse.should eq(assigns(:tasks))
+      end
     end
     
-    it 'assigns all shated tasks as @tasks' do
-      get :index
-      assigns(:shared_tasks).should match_array(@user1.shared_tasks)
+    context 'for shared tasks' do
+    
+      it 'assigns all as @tasks' do
+        get :index
+        assigns(:shared_tasks).should match_array(@user1.shared_tasks)
+      end
+      
+      it 'sorts them deccending by date' do
+        get :index
+        assigns(:shared_tasks).sort_by{|task| task.updated_at}.reverse.should eq(assigns(:shared_tasks))
+      end
+      
     end
     
   end

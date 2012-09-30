@@ -16,7 +16,7 @@
         = form_for User.new, :url => share_task_path(task), :method => :post do |f|
           = f.text_field :email 
           = f.submit 'Share'
-      %hr
+        %hr/
     
     = link_to 'New Task', new_task_path, :class => 'btn btn-primary'
   .span5
