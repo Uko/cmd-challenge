@@ -172,20 +172,21 @@ describe TasksController do
     before(:each) do
       user1 = FactoryGirl.create(:user_with_tasks, email: 'user1@e.mail')
       @user2 = FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail')
-      user1.tasks.last
       @task = user1.tasks.last
       sign_in user1
+      
+      @params = {:id => @task.to_param, :user => {:email => @user2.email}}
     end
     
     context 'user side' do
       it 'should add task to shared' do
-        post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+        post :share, @params
         @user2.shared_tasks.should include(@task)
       end
       
       it 'should increase shared tasks by 1' do
         expect {
-          post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+          post :share, @params
         }.to change(@user2.shared_tasks, :count).by(1)
       end
       
@@ -193,19 +194,24 @@ describe TasksController do
     
     context 'task side' do
       it 'should add user to collaborators' do
-        post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+        post :share, @params
         @task.collaborators.should include(@user2)
       end
       
       it 'should increase collaborators by 1' do
         expect {
-          post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+          post :share, @params
         }.to change(@task.collaborators, :count).by(1)
       end
     end
     
+    it 'should publish task by Private Pub' do
+      PrivatePub.should_receive(:publish_to).with("/users/#{@user2.id}", :title => @task.title, :description => @task.description, :owner => @task.user.email)
+      post :share, @params
+    end
+    
     it 'should redirect to the tasks list' do
-      post :share, {:id => @task.to_param, :user => {:email => @user2.email}}
+      post :share, @params
       response.should redirect_to(:action => :index)
     end
   end

@@ -79,7 +79,7 @@ class TasksController < ApplicationController
     user = User.find_by_email(params[:user][:email])
     task = current_user.tasks.find(params[:id])
     task.collaborators << user
-    PrivatePub.publish_to("/users/#{user.id}", :title => task.title, :description => task.description, :owner => user.email)
+    PrivatePub.publish_to("/users/#{user.id}", :title => task.title, :description => task.description, :owner => task.user.email)
     respond_to do |format|
       format.html { redirect_to :action => :index }
       format.json { head :no_content }
