@@ -19,47 +19,58 @@ require 'spec_helper'
 # that an instance is receiving a specific message.
 
 describe TasksController do
-  login_user
 
   describe "GET index" do
-    it "assigns all tasks as @tasks" do  
-      task = Task.create!
-      get :index, {}
-      assigns(:tasks).should eq([task])
+    it "assigns all tasks as @tasks" do
+      user1 = FactoryGirl.create(:user_with_tasks, email: 'user1@e.mail')
+      user2 = FactoryGirl.create(:user_with_tasks, email: 'user2@e.mail')
+      sign_in user1
+      get :index
+      assigns(:tasks).should match_array(user1.tasks)
     end
   end
 
   describe "GET new" do
     it "assigns a new task as @task" do
-      get :new, {}
+      user = FactoryGirl.create(:user)
+      sign_in user
+      get :new
       assigns(:task).should be_a_new(Task)
     end
   end
 
   describe "GET edit" do
     it "assigns the requested task as @task" do
-      task = Task.create!
+      user = FactoryGirl.create(:user_with_tasks)
+      sign_in user
+      task = user.tasks.last
       get :edit, {:id => task.to_param}
       assigns(:task).should eq(task)
     end
   end
 
   describe "POST create" do
+    
+    before(:each) do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+    
     describe "with valid params" do
       it "creates a new Task" do
         expect {
-          post :create
+          post :create, {:task => FactoryGirl.attributes_for(:task)}
         }.to change(Task, :count).by(1)
       end
 
       it "assigns a newly created task as @task" do
-        post :create
+        post :create, {:task => FactoryGirl.attributes_for(:task)}
         assigns(:task).should be_a(Task)
         assigns(:task).should be_persisted
       end
 
-      it "redirects to the created task" do
-        post :create
+      it "redirects to the index page" do
+        post :create, {:task => FactoryGirl.attributes_for(:task)}       
         response.should redirect_to(:action => :index, :notice => 'Task was successfully created.')
       end
     end
@@ -82,61 +93,68 @@ describe TasksController do
   end
 
   describe "PUT update" do
+    
+    before(:each) do
+      user = FactoryGirl.create(:user_with_tasks)
+      @task = user.tasks.last
+      sign_in user
+    end
+    
     describe "with valid params" do
       it "updates the requested task" do
-        task = Task.create!
         # Assuming there are no other tasks in the database, this
         # specifies that the Task created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Task.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, {:id => task.to_param, :task => {'these' => 'params'}}
+        put :update, {:id => @task.to_param, :task => {'these' => 'params'}}
       end
 
       it "assigns the requested task as @task" do
-        task = Task.create!
-        put :update, {:id => task.to_param}
-        assigns(:task).should eq(task)
+        put :update, {:id => @task.to_param}
+        assigns(:task).should eq(@task)
       end
 
-      it "redirects to the task" do
-        task = Task.create!
-        put :update, {:id => task.to_param}
-        response.should redirect_to(task)
+      it "redirects to the index page" do
+        put :update, {:id => @task.to_param}
+        response.should redirect_to(:action => :index, :notice => 'Task was successfully updated.')
       end
     end
 
     describe "with invalid params" do
       it "assigns the task as @task" do
-        task = Task.create!
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
-        put :update, {:id => task.to_param, :task => {}}
-        assigns(:task).should eq(task)
+        put :update, {:id => @task.to_param, :task => {}}
+        assigns(:task).should eq(@task)
       end
 
       it "re-renders the 'edit' template" do
-        task = Task.create!
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
-        put :update, {:id => task.to_param, :task => {}}
+        put :update, {:id => @task.to_param, :task => {}}
         response.should render_template("edit")
       end
     end
   end
 
   describe "DELETE destroy" do
+    
+    before(:each) do
+      user = FactoryGirl.create(:user_with_tasks)
+      @task = user.tasks.last
+      sign_in user
+    end
+    
     it "destroys the requested task" do
-      task = Task.create!
       expect {
-        delete :destroy, {:id => task.to_param}
+        delete :destroy, {:id => @task.to_param}
       }.to change(Task, :count).by(-1)
     end
 
     it "redirects to the tasks list" do
-      task = Task.create!
-      delete :destroy, {:id => task.to_param}
-      response.should redirect_to(tasks_url)
+      delete :destroy, {:id => @task.to_param}
+      response.should redirect_to(:action => :index)
     end
   end
 
