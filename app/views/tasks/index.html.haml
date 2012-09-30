@@ -1,19 +1,32 @@
-.page-header
-  %h1
-    = "Tasks"
-    = link_to 'Create New', new_task_path, :class => 'btn btn-mini btn-primary'
-
-- @tasks.each do |task|
-  .task
-    %h3
-      = task.title
-      = link_to 'Edit', edit_task_path(task), :class => 'btn btn-mini'
-      = link_to 'Delete', task_path(task), :method => :delete, :data => { :confirm => "Are you sure?" }, :class => 'btn btn-mini btn-danger'
-    %p= task.description
+.row-fluid
+  .span7
+    .page-header
+      %h1
+        = 'Tasks'
+        = link_to 'Create New', new_task_path, :class => 'btn btn-mini btn-primary'
     
-    = form_for User.new, :url => share_task_path(task), :method => :post do |f|
-      = f.text_field :email 
-      = f.submit 'Share'
-  %hr
-
-= link_to 'New Task', new_task_path, :class => 'btn btn-primary'
+    - @tasks.each do |task|
+      .task
+        %h3
+          = task.title
+          = link_to 'Edit', edit_task_path(task), :class => 'btn btn-mini'
+          = link_to 'Delete', task_path(task), :method => :delete, :data => { :confirm => "Are you sure?" }, :class => 'btn btn-mini btn-danger'
+        %p= task.description
+        
+        = form_for User.new, :url => share_task_path(task), :method => :post do |f|
+          = f.text_field :email 
+          = f.submit 'Share'
+      %hr
+    
+    = link_to 'New Task', new_task_path, :class => 'btn btn-primary'
+  .span5
+    .page-header
+      %h2 Shared with me
+    - @shared_tasks.each do |task|
+      .task
+        %h3= task.title
+        %p= task.description
+        %p
+          Owner:
+          %span.label= task.user.email
+      %hr
