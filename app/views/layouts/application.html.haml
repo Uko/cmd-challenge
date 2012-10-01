@@ -10,7 +10,8 @@
     /[if lt IE 9]
       = javascript_include_tag "http://html5shim.googlecode.com/svn/trunk/html5.js"
     = stylesheet_link_tag "application", :media => "all"
-    = javascript_tag "var user_id = #{current_user.id}"
+    - if user_signed_in?
+      = javascript_tag "var user_id = #{current_user.id}"
     = javascript_include_tag "application"
 
   %body
@@ -21,9 +22,13 @@
           - if user_signed_in?
             %ul.nav.pull-right
               %li
-                = link_to 'Edit profile', edit_user_registration_path
+                = link_to edit_user_registration_path do
+                  %i.icon-wrench
+                  Edit profile
               %li
-                = link_to 'Log out', destroy_user_session_path, :method => :delete
+                = link_to destroy_user_session_path, :method => :delete do
+                  %i.icon-off 
+                  Log out
     .container-fluid
       - if flash.key? :error and not flash[:error].blank?
         #error.alert.alert-error.span6.offset3
