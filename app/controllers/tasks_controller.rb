@@ -4,8 +4,8 @@ class TasksController < ApplicationController
   # GET /tasks
   # GET /tasks.json
   def index
-    @tasks = current_user.tasks :order => 'updated_at DESC'
-    @shared_tasks = current_user.shared_tasks :order => 'updated_at DESC'
+    @tasks = current_user.tasks.find(:all, :order => 'updated_at DESC')
+    @shared_tasks = current_user.shared_tasks.find(:all, :order => 'updated_at DESC', :include => :user)
 
     respond_to do |format|
       format.html # index.html.erb
