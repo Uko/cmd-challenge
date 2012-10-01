@@ -6,3 +6,14 @@ PrivatePub.subscribe "/users/" + user_id, (data, channel) ->
                                 "<hr/>" +
                               "</div>"
   $("#shared-tasks .task:first-child").show("slow")
+  
+jQuery ->
+  $(".share-task-autocomplete").typeahead
+    source: (query, process) ->
+      $.get "get-users",
+        'str-to-complete': query
+        'amount': 8, 
+        (data) ->
+          process data
+    items: 8
+    minLength: 3

@@ -14,8 +14,9 @@
         %p= task.description
         
         = form_for User.new, :url => share_task_path(task), :method => :post do |f|
-          = f.text_field :email 
-          = f.submit 'Share'
+          .input-append
+            = f.text_field :email, :class => 'share-task-autocomplete', :placeholder => 'Collaborator\'s email'
+            = f.submit 'Share', :class => 'btn'
         %hr/
     
     = link_to 'New Task', new_task_path, :class => 'btn btn-primary'

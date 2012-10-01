@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   def get_users
-    users = User.find(:all, :select => 'email', :conditions => ['lower(email) LIKE ?', "%#{params[:str_to_complete]}%"])
+    users = User.find(:all, :limit => params[:amount], :select => 'email', :conditions => ['lower(email) LIKE ?', "%#{params[:str_to_complete]}%"])
     
     @user_emails = users.map{|user| user.email}
     
